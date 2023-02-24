@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="sql.resources.youtubeinfluencerdao">
+
+	<resultMap type="YouTubeInfluencerData" id="youTubeInfluencerData">
+		<result column="SITE_NAME" property="siteName"/>
+		<result column="SITE_TYPE" property="siteType"/>
+		<result column="FOLLOWER" property="follower"/>
+		<result column="LISTED" property="listed"/>
+		<result column="PICTURE" property="picture"/>
+		<result column="BIO" property="bio"/>
+		<result column="STATUS" property="status"/>
+		<result column="URL" property="url"/>
+		<result column="SITE_CATEGORY" property="siteCategory"/>
+		<result column="SITE_ID" property="siteId"/>			
+	</resultMap>
+	
+	<insert id ="insertYouTubeChannel" parameterType="YouTubeInfluencerData">
+		<selectKey keyProperty="seq" resultType="long" order="BEFORE">
+			SELECT SEQ_CRAWL_SITE_VIDEO.NEXTVAL FROM dual
+		</selectKey>
+		INSERT /*+ APPEND */ 
+		INTO TB_CRAWL_SITE
+		       ( 
+		           SITE_ID_OLD, SITE_NAME, SITE_TYPE, LISTED
+		           , STATUS, URL, PRIORITY, CREATE_USER_DATE
+		           , UPDATE_USER_DATE, SCREEN_NAME , SITE_ID, SITE_CODE
+		           , HIT_COUNT_TOTAL, IS_VALID_LANG, SITE_SUB_CATE
+		           , SITE_CATEGORY, PUBLISHER_TYPE
+		           , PICTURE
+		           , BIO
+		           , TWEET
+		           , LAST_UPDATED_DATE
+		           , FOLLOWER
+		       ) 
+		       VALUES
+		       (#{seq}, #{siteName}, 'V', #{listed,javaType=integer,jdbcType=NUMERIC} 
+		       , 'T', #{url}, 1, TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		       , TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS'), #{siteName} , #{seq}, #{seq}
+		       , 0, 'Y', 'youtube'
+		       , #{siteCategory,javaType=string,jdbcType=VARCHAR}, 'C'
+		       , #{picture,javaType=string,jdbcType=VARCHAR}
+		       , #{bio,javaType=string,jdbcType=VARCHAR}
+		       , 0
+		       , TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		       , #{follower})
+	</insert>
+	
+				
+	<!-- URL이 고유값으로 생각하고 URL이 중복으로 들어있는 리스트 파싱 -->
+	<select id="selectDuplicationYouTubeChannelList" resultType="YouTubeInfluencerData">
+    SELECT SITE_NAME, URL, PRIORITY, STATUS, SITE_ID 
+    FROM TB_CRAWL_SITE
+    WHERE 1=1
+    and SITE_TYPE='V'
+    AND URL in
+    (
+     SELECT URL
+		FROM TB_CRAWL_SITE	
+		WHERE SITE_TYPE = 'V'
+		AND IS_VALID_LANG = 'Y'
+		AND SITE_SUB_CATE = 'youtube'
+        GROUP BY URL
+        HAVING COUNT(*) >1
+    )
+    ORDER BY URL,SITE_ID desc
+	</select>
+	
+	<!-- URL이 고유값으로 생각하고 URL이 중복이아닌  리스트 파싱 -->
+	<select id="selectNotDuplicatedYouTubeChannelList" resultType="YouTubeInfluencerData">
+		SELECT SITE_NAME, URL, PRIORITY, STATUS, SITE_ID
+		FROM TB_CRAWL_SITE
+		WHERE url in(
+		     SELECT  URL
+				FROM TB_CRAWL_SITE	
+				WHERE SITE_TYPE = 'V'
+				AND IS_VALID_LANG = 'Y'
+				AND SITE_SUB_CATE = 'youtube'
+		        GROUP BY url
+		        HAVING COUNT(*) =1
+		)
+	</select >
+	
+	<update id="updateYouTubeChannelPriority" parameterType="String">
+		update tb_crawl_site
+		set priority = 1
+		,update_user_date = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		where url = #{url}
+	</update>
+
+	<update id="updateYouTubeChannelStatus" parameterType="String">
+		update tb_crawl_site
+		set status = 'T'
+		,update_user_date = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		where url = #{url}
+	</update>
+	
+	<update id="updateYouTubeChannelPriorityStatus" parameterType="String">
+		update tb_crawl_site
+		set status = 'T'
+		,priority = 1
+		,update_user_date = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		where url = #{url}
+	</update>
+</mapper>
