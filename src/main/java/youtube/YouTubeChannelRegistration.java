@@ -13,10 +13,10 @@ import java.util.List;
 
 import org.springframework.context.support.GenericXmlApplicationContext;
 
+
 import youtube.service.YouTubeInfluencerCrawlerServiceImpl;
 
 	
-
 /**
  * 텍스트 파일을 읽어 
  * YouTube 수집원 DB를 조회한뒤
@@ -63,7 +63,7 @@ public class YouTubeChannelRegistration {
 		 List<YouTubeInfluencerData> removed = new ArrayList<>();
 		 try {
 			BufferedReader reader = new BufferedReader(
-					 new FileReader("C:\\Users\\hyukg\\Desktop\\Test.txt"), // File Read
+					 new FileReader("C:\\Users\\hyukg\\Desktop\\YouTubeData.txt"), // File Read
 					 16 * 1024				 
 			 );
 			
@@ -121,7 +121,7 @@ public class YouTubeChannelRegistration {
 						data.setBio(bio);					
 						break;	
 						
-					case "site_category": // 동작후 siteCategory 변경 
+					case "siteCategory":
 						String siteCategory = date[i].substring(idx+1)
 						.replaceAll("=", "")
 						.trim();
@@ -167,7 +167,6 @@ public class YouTubeChannelRegistration {
 	
 		String result = "";
 		
-		// 시스템이 비정상 종료시 위치 기억후 재개
 		for(YouTubeInfluencerData data : youTubeDBDataList ) {
 
 			if(data.getUrl().equals(readYouTubeData.getUrl())) {
@@ -179,11 +178,8 @@ public class YouTubeChannelRegistration {
 					data.setText(result);
 					youTubeDataLogList.add(data);
 					return result;
-					
-					
-				}
-				
-				
+										
+				}						
 				// Priority 2번일경우 1로 변경
 				if(data.getPriority() == 2) {
 					// Priority 2번을 1번으로 바꿔주는 로직 
@@ -234,6 +230,15 @@ public class YouTubeChannelRegistration {
 		return result;
 	}
 	
+	/**
+	 * changeStateYouTubeChannels 메소드를 실행하여 DB에 변경된 유형에 따라 result 값을 받아온후
+	 * (UpdatePriorityStatus - 0, UpdatePriority - 1, UpdateStatus - 2, NotUpdate - 3, Insert - 4, ERROR - 5)
+	 * result값 에 따라 로그파일을 생성한다.
+	 * 해당경로 C:\home\YouTubeLog\ 폴더에 년월일_시분초 이름의 폴더를 생성후
+	 * DB 변경된 유형에 해당하는 로그를 생성한다.
+	 * @param list
+	 * @throws IOException
+	 */
 	public void createLog(List<YouTubeInfluencerData> list) throws IOException {
 		BufferedWriter changePriorityStatusWriter = null;
 		BufferedWriter changePriorityWriter = null;
