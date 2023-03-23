@@ -34,7 +34,7 @@
 		           , FOLLOWER
 		       ) 
 		       VALUES
-		       (#{seq}, #{siteName}, 'V', #{listed,javaType=integer,jdbcType=NUMERIC} 
+		       (#{seq}, #{siteName}, 'V', #{listed} 
 		       , 'T', #{url}, 1, TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
 		       , TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS'), #{siteName} , #{seq}, #{seq}
 		       , 0, 'Y', 'youtube'
@@ -81,25 +81,31 @@
 		)
 	</select >
 	
+	<!-- Priority 2 -> 1 활성화 -->
 	<update id="updateYouTubeChannelPriority" parameterType="String">
 		update tb_crawl_site
 		set priority = 1
 		,update_user_date = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		,LAST_UPDATED_DATE = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
 		where url = #{url}
 	</update>
 
+	<!-- Status F -> T 활성화 -->
 	<update id="updateYouTubeChannelStatus" parameterType="String">
 		update tb_crawl_site
 		set status = 'T'
 		,update_user_date = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		,LAST_UPDATED_DATE = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
 		where url = #{url}
 	</update>
 	
+	<!-- Priority 2 -> 1, Status F -> T 활성화 -->
 	<update id="updateYouTubeChannelPriorityStatus" parameterType="String">
 		update tb_crawl_site
 		set status = 'T'
 		,priority = 1
 		,update_user_date = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		,LAST_UPDATED_DATE = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
 		where url = #{url}
 	</update>
 </mapper>

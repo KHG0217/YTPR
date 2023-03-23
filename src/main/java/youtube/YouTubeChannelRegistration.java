@@ -63,7 +63,21 @@ public class YouTubeChannelRegistration {
 		 List<YouTubeInfluencerData> removed = new ArrayList<>();
 		 try {
 			BufferedReader reader = new BufferedReader(
-					 new FileReader("C:\\Users\\hyukg\\Desktop\\YouTubeData.txt"), // File Read
+					/* 
+					 * 파일 형식(줄바꿈 없이 한줄로)
+						 [rank: "숫자"|||siteName: "사이트이름"|||follower: "숫자"|||listed: "숫자"|||
+		        	     picture: "사진주소"|||url: "url"|||siteCategory:"맵핑된 카테고리 숫자+"|||
+						 bio: "유튜브채널정보 설명글"|||"views: " +숫자]
+						 
+						 ex) [rank:1|||siteName: BLACKPINK|||follower: 84400000|||listed: 475|||
+						 picture: https://yt3.ggpht.com/hZDUwjoeQqigphL4A1tkg9c6hVp5yXmbboBR7PYFUSFj5PIJSA483NB5v7b0XVoTN9GCku3tqQ=s800-c-k-c0x00ffffff-no-nd-rj
+						 |||url: https://www.youtube.com/channel/UCOmHUn--16B90oW2L6FRR3A
+						 |||site_category: 1020
+						 |||bio: BLACKPINK Official YouTube Channel 블랙핑크 공식 유튜브 채널입니다. JISOO JENNIE ROSÉ LISA 지수 제니 로제 리사
+						 |||views: 29142830344]
+					  */
+
+					 new FileReader("C:\\Users\\hyukg\\Desktop\\YouTubeData.txt"), // Read file
 					 16 * 1024				 
 			 );
 			
@@ -75,7 +89,16 @@ public class YouTubeChannelRegistration {
 				 for(int i = 0; i< date.length; i++) {
 				 
 					int idx = date[i].indexOf(":");
-					switch (date[i].substring(0,idx)) {					
+					switch (date[i].substring(0,idx)) {	
+					case "[rank":
+						int rank = Integer.parseInt(
+								date[i].substring(idx+1)
+								.replaceAll("[^0-9]", "")
+								.trim()
+								);
+						data.setRank(rank);							
+						break;
+					
 					case "siteName":
 						String siteName = date[i].substring(idx+1)
 								.trim();
@@ -162,6 +185,8 @@ public class YouTubeChannelRegistration {
 	/*
 	 * 중복으로 들어가있는 채널을 제거하여 목록을 가져옴
 	 * 중복선정 여부는 site_id가 높은수(최신등록)을 기준으로 선별 
+	 * 상태를 업데이트하는 코드순서 중요 Priority,Status -> Priority -> Status -> insert -> fail
+	 * Priority 2 ->1 / Status F -> T / New Data Insert
 	 * */
 	public String changeStateYouTubeChannels(YouTubeInfluencerData readYouTubeData) throws IOException {	
 	
@@ -175,7 +200,7 @@ public class YouTubeChannelRegistration {
 					updateYouTubeChannelPriorityStatus(data.getUrl());
 					System.out.println("updateYouTubeChannelPriorityStatus : " + data.getSiteName());
 					result = "0";
-					data.setText(result);
+					data.setLog(result);
 					youTubeDataLogList.add(data);
 					return result;
 										
@@ -186,7 +211,7 @@ public class YouTubeChannelRegistration {
 					updateYouTubeChannelPriority(data.getUrl());
 					System.out.println("updateYouTubeChannelPriority : " + data.getSiteName());
 					result = "1";
-					data.setText(result);
+					data.setLog(result);
 					youTubeDataLogList.add(data);
 
 					return result;
@@ -198,14 +223,14 @@ public class YouTubeChannelRegistration {
 					updateYouTubeChannelStatus(data.getUrl());
 					System.out.println("updateYouTubeChannelStatus : " + data.getSiteName());
 					result = "2";
-					data.setText(result);
+					data.setLog(result);
 					youTubeDataLogList.add(data);
 					return result;
 				}
 				
 				if(data.getStatus().equals("T") && data.getPriority() == 1) {
 					result = "3";
-					data.setText(result);
+					data.setLog(result);
 					youTubeDataLogList.add(data);
 					System.out.println("WorkingData : " + data.getSiteName());
 					return result;
@@ -216,7 +241,7 @@ public class YouTubeChannelRegistration {
 		// insert 문 
 		try {
 			result = "4";
-			readYouTubeData.setText(result);
+			readYouTubeData.setLog(result);
 			insertNewYouTubeChannel(readYouTubeData);	
 			System.out.println("insertNewYouTubeChannel : " + readYouTubeData.getSiteName());
 			youTubeDataLogList.add(readYouTubeData);
@@ -274,7 +299,7 @@ public class YouTubeChannelRegistration {
 				
 		for(YouTubeInfluencerData data : list) {
 		
-			switch (data.getText()) {
+			switch (data.getLog()) {
 			case "0":
 				fileName ="ChangePriorityAndStatus";
 				String filePathChangePriorityStatus = mkPath2 + fileName+".txt";

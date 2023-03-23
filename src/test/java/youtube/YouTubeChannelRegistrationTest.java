@@ -88,25 +88,25 @@ public class YouTubeChannelRegistrationTest {
 		testData.setUrl(url);
 		testData.setSiteName(siteName);
 		testData.setSiteId(siteId);
-		testData.setText("1");
+		testData.setLog("1");
 		testList.add(testData);
 		
 		testData2.setUrl(url);
 		testData2.setSiteName(siteName);
 		testData2.setSiteId(siteId);
-		testData2.setText("2");
+		testData2.setLog("2");
 		testList.add(testData2);
 		
 		testData3.setUrl(url);
 		testData3.setSiteName(siteName);
 		testData3.setSiteId(siteId);
-		testData3.setText("3");
+		testData3.setLog("3");
 		testList.add(testData3);
 		
 		testData4.setUrl(url);
 		testData4.setSiteName(siteName);
 		testData4.setSiteId(siteId);
-		testData4.setText("4");
+		testData4.setLog("4");
 		testList.add(testData4);
 			
 		try {

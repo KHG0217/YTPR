@@ -16,13 +16,13 @@ public class YouTubeInfluencerData {
 	String url;
 	String siteCategory;
 	String views;
-	String text; // Log를 조건에따라 남기기위해 만든 VO
+	String log; // Log를 조건에따라 남기기위해 만든 VO
 
 	public YouTubeInfluencerData() {}
 
 	public YouTubeInfluencerData(int rank, Long seq, String siteName, String siteId, String siteType, int follower,
 			int listed, int priority, String picture, String bio, String status, String url, String siteCategory,
-			String views, String text) {
+			String views, String log) {
 		super();
 		this.rank = rank;
 		this.seq = seq;
@@ -38,7 +38,7 @@ public class YouTubeInfluencerData {
 		this.url = url;
 		this.siteCategory = siteCategory;
 		this.views = views;
-		this.text = text;
+		this.log = log;
 	}
 
 	public int getRank() {
@@ -153,12 +153,12 @@ public class YouTubeInfluencerData {
 		this.views = views;
 	}
 
-	public String getText() {
-		return text;
+	public String getLog() {
+		return log;
 	}
 
-	public void setText(String text) {
-		this.text = text;
+	public void setLog(String log) {
+		this.log = log;
 	}
 
 	@Override
@@ -166,7 +166,7 @@ public class YouTubeInfluencerData {
 		return "YouTubeInfluencerData [rank=" + rank + ", seq=" + seq + ", siteName=" + siteName + ", siteId=" + siteId
 				+ ", siteType=" + siteType + ", follower=" + follower + ", listed=" + listed + ", priority=" + priority
 				+ ", picture=" + picture + ", bio=" + bio + ", status=" + status + ", url=" + url + ", siteCategory="
-				+ siteCategory + ", views=" + views + ", text=" + text + "]";
+				+ siteCategory + ", views=" + views + ", log=" + log + "]";
 	}
 	
 }

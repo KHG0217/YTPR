@@ -8,6 +8,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+
 import com.tapacross.sns.entity.TBProxy;
 import com.tapacross.sns.parser.JSoupFactory;
 import com.tapacross.sns.util.ThreadUtil;
@@ -16,7 +17,8 @@ import com.tapacross.sns.util.ThreadUtil;
  * 
  * @author hyukg
  * @since 2023-02-21
-
+ * @See 소셜러스의 유튜브 순위(1~6000)를 수집하여 파일로 저장한다.
+ *
  */
 public class YouTubeInfluencerCrawler {
 
@@ -25,11 +27,12 @@ public class YouTubeInfluencerCrawler {
 	
 	// 실행 메소드
 	public void main() {
-		proxy.setIp("");
-		proxy.setPort(0);
+		proxy.setIp("49.238.161.152");
+		proxy.setPort(23545);
 
-		for(int i=1; i<2; i++) {
-
+		for(int i=1; i<302; i++) {
+			String url = "";
+			parseData(url);
 		}
 	}
 		
@@ -37,7 +40,7 @@ public class YouTubeInfluencerCrawler {
 		YouTubeInfluencerData data = new YouTubeInfluencerData();
 		int follower = 0;
 		int listed = 0;
-		String site_name = null;
+		String siteName = null;
 		String picture = null;
 		String bio = null;
 		String views = null;
@@ -57,17 +60,17 @@ public class YouTubeInfluencerCrawler {
 				rank ++;
 				data.setRank(rank);
 				
-				/* site_category*/
+				/* siteCategory*/
 				siteCategory = el.select("span.category").text();
 				System.out.println("siteCategory : " + siteCategory);
 				siteCategoryCode =changeSiteCategory(siteCategory);
 				System.out.println("siteCategory변환후 : "+ siteCategoryCode);
 				data.setSiteCategory(siteCategoryCode);
 							
-				/* site_name */
-				site_name = el.select("span.title").text();	
+				/* siteName */
+				siteName = el.select("span.title").text();	
 				
-				data.setSiteName(site_name);
+				data.setSiteName(siteName);
 				
 				/* follower */
 				follower = Integer.parseInt(
@@ -91,16 +94,16 @@ public class YouTubeInfluencerCrawler {
 				
 				/* url */
 				url = el.select("div.ranking_info").attr("onclick");
-				url = "https://socialerus.com/" + url.substring(17, url.length()-1);
+				url = "" + url.substring(17, url.length()-1);
 				
 				/* channelsDetail Document 생성 */
-				// jsoup connect timeout 발생으로 연결이 끊기면, 다시 접속
+				// jsoup connect timeout 발생으로 연결이 끊기면, 다시 접속(100번 시도)
 				Document channelsDoc = null;
 				int cnt = 0;
 				while (channelsDoc == null) {
 					try {
 						cnt++;
-						if (cnt > 20) {
+						if (cnt > 100) {
 							break;
 						}
 						channelsDoc = channelsDetail(url);
@@ -108,8 +111,6 @@ public class YouTubeInfluencerCrawler {
 						e.printStackTrace();
 					}
 				}
-				
-				// retry by groovy closure
 				
 				url = crawlChannelsUrl(channelsDoc);
 				data.setUrl(url);
@@ -148,14 +149,12 @@ public class YouTubeInfluencerCrawler {
 		return doc;
 	}
 	
-
 	private String crawlChannelsUrl(Document doc) {
 		
 		String channelsUrl = doc.select("div.btn_business.group > a").attr("href");	
 		return channelsUrl;
 	}
 	
-
 	private String crawlChannelsBio(Document doc) {
 		String bio = doc.select("div.channel_detail_txt").text();			
 		return bio;
@@ -166,66 +165,87 @@ public class YouTubeInfluencerCrawler {
 		
 		switch (siteCategory) {
 		case "1":
+			siteCategoryCode = "1017";		
 			break;
 			
 		case "2":
+			siteCategoryCode = "1020";
 			break;
 			
 		case "3":
+			siteCategoryCode = "Examine";
 			break;
 			
 		case "4":
+			siteCategoryCode = "1020";
 			break;
 			
 		case "5":
+			siteCategoryCode = "1020";
 			break;
 			
 		case "6":
+			siteCategoryCode = "1020";
 			break;
 			
 		case "7":
+			siteCategoryCode = "1004";
 			break;
 			
 		case "8":
+			siteCategoryCode = "1005";
 			break;
 			
 		case "9":
+			siteCategoryCode = "1012";
 			break;
 			
 		case "10":
+			siteCategoryCode = "1012";
 			break;
 			
 		case "11":
+			siteCategoryCode = "1020";
 			break;
 			
 		case "12":
+			siteCategoryCode = "1006";
 			break;
 			
 		case "13":
+			siteCategoryCode = "1012";
 			break;
 			
 		case "14":
+			siteCategoryCode = "1011";
 			break;
 			
 		case "15":
+			siteCategoryCode = "1020";
 			break;
 			
 		case "16":
+			siteCategoryCode = "1020";
 			break;
 			
 		case "17":
+			siteCategoryCode = "1010";
 			break;
 			
 		case "18":
+			siteCategoryCode = "1002";
 			break;
 			
 		case "19":
+			siteCategoryCode = "1012";
 			break;
 			
 		case "20":
+			siteCategoryCode = "Examine";
 			break;
 
 		default:
+			siteCategoryCode = "NotIdentified";
 			break;
 		}
 		
@@ -234,40 +254,43 @@ public class YouTubeInfluencerCrawler {
 	
 	private void saveYouTubeData(YouTubeInfluencerData data) throws IOException {
 		
-		String filePathYouTubeList = "C:\\Users\\hyukg\\Desktop\\Test.txt";
-		String filePathReviewList = "C:\\Users\\hyukg\\Desktop\\review.txt";
+		String filePathYouTubeList = "C:\\Users\\hyukg\\Desktop\\YouTubeData.txt";
+		String filePathReviewList = "C:\\Users\\hyukg\\Desktop\\YouTubeData_Check.txt";
 		
-        File youTubeList = new File(filePathYouTubeList); // File객체 생성
-        File reviewList = new File(filePathReviewList);
+        File youTubeList = new File(filePathYouTubeList);
+        File checkList = new File(filePathReviewList);
         
-        if(!youTubeList.exists()){ // 파일이 존재하지 않으면
-				youTubeList.createNewFile();// 신규생성
+        if(!youTubeList.exists()){ 
+				youTubeList.createNewFile();
         }
         
 		BufferedWriter youTubeListWriter = new BufferedWriter(new FileWriter(youTubeList, true));
-		BufferedWriter reviewListWriter = new BufferedWriter(new FileWriter(reviewList, true));
+		BufferedWriter reviewListWriter = new BufferedWriter(new FileWriter(checkList, true));
 		String categoryCi = data.getSiteCategory();
 		
-		// 검토가 필요한 카테고리나 식별할 수 없는 카테고리는 review.txt에 저장한다.
+		// 검토가 필요한 카테고리나 식별할 수 없는 카테고리는 YouTubeData_Check.txt에 저장한다.
 		// 추후 수동으로 등록
 		if(categoryCi.equals("Examine") || categoryCi.equals("NotIdentified")) {
 			
-	        if(!reviewList.exists()){ // 파일이 존재하지 않으면
-	        	reviewList.createNewFile();// 신규생성
+	        if(!checkList.exists()){ 
+	        	checkList.createNewFile();
         }
-	        reviewListWriter.write("[rank:" + data.getRank()+"|||"+"siteName: " + data.getSiteName()+"|||"
-					+"follower: " + data.getFollower()+"|||"+"listed: " + data.getListed()+"|||"
-	        		+"picture: " + data.getPicture()+"|||"+"url: " + data.getUrl()+"|||"+"siteCategory: " +data.getSiteCategory() +"|||"
-					+"bio: " + data.getBio()+"|||"+"views: " + data.getViews()+"]");
+	        // ㏂ 을통해 엑셀해서 데이터를 분활한다.
+	        // 엑셀로 복사 붙여넣기 후 ->데이터-> 텍스트 나누기 -> 구분기호로 분리됨 -> 기타 ㏂-> 열데이터서식[텍스트]
+	        // 추후 =CONCATENATE 함수를 통해 YouTubeChannelRegistration에서 읽을 수 있는 형식으로 치환한다. (=CONCATENATE(B2,"|||",C2,"|||",D2...)
+	        reviewListWriter.write("[rank:" + data.getRank()+"㏂"+"siteName: " + data.getSiteName()+"㏂"
+					+"follower: " + data.getFollower()+"㏂"+"listed: " + data.getListed()+"㏂"
+	        		+"picture: " + data.getPicture()+"㏂"+"url: " + data.getUrl()+"㏂"+"siteCategory: " +data.getSiteCategory() +"㏂"
+					+"bio: " + data.getBio()+"㏂"+"views: " + data.getViews()+"]");
 	        reviewListWriter.newLine();
 	        reviewListWriter.flush(); 
 	        
 		}else {
-
-			youTubeListWriter.write("[rank:" + data.getRank()+"㏂"+"siteName: " + data.getSiteName()+"㏂"
-					+"follower: " + data.getFollower()+"㏂"+"listed: " + data.getListed()+"㏂"
-	        		+"picture: " + data.getPicture()+"㏂"+"url: " + data.getUrl()+"㏂"+"siteCategory: " +data.getSiteCategory() +"㏂"
-					+"bio: " + data.getBio()+"㏂"+"views: " + data.getViews()+"]");
+			// YouTubeChannelRegistration 식별하는 구분자 |||
+			youTubeListWriter.write("[rank:" + data.getRank()+"|||"+"siteName: " + data.getSiteName()+"|||"
+					+"follower: " + data.getFollower()+"|||"+"listed: " + data.getListed()+"|||"
+	        		+"picture: " + data.getPicture()+"|||"+"url: " + data.getUrl()+"|||"+"siteCategory: " +data.getSiteCategory() +"|||"
+					+"bio: " + data.getBio()+"|||"+"views: " + data.getViews()+"]");
 			youTubeListWriter.newLine();
 			youTubeListWriter.flush(); 
 			
