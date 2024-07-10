@@ -39,8 +39,10 @@
 		<repository>
 			<id>snapshots</id>
 			<url>http://121.254.177.182:8081/nexus/content/repositories/snapshots</url>
-		</repository>
+		</repository>		        
 	</repositories>
+	
+    
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -247,6 +249,13 @@
 			<artifactId>json</artifactId>
 			<version>20180813</version>
 		</dependency>
+		
+	<!-- comCore project-->
+	    <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.6</version>
+        </dependency>
 	</dependencies>
 
 	<build>
